@@ -7,20 +7,26 @@
     "type": "git",
     "url": "https://SlexAxton@github.com/SlexAxton/Jed.git"
   },
-  "scripts": {
-    "test": "make test"
-  },
   "main": "./jed",
+  "type": "module",
+  "scripts": {
+    "test": "make test",
+    "dev": "vite",
+    "build": "tsc && vite build",
+    "preview": "vite preview"
+  },
   "keywords": [
     "i18n",
     "Jed",
     "gettext",
     "internationalization"
   ],
-  "dependencies" : {},
-  "devDependencies" : {
-    "mocha" : "*",
-    "expect.js" : "*",
+  "dependencies": {},
+  "devDependencies": {
+    "typescript": "~6.0.2",
+    "vite": "^8.1.1",
+    "mocha": "*",
+    "expect.js": "*",
     "serve": "*"
   },
   "license": "MIT"
