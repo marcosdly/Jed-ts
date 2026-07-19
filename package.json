@@ -21,13 +21,16 @@
     "gettext",
     "internationalization"
   ],
-  "dependencies": {},
+  "dependencies": {
+    "sprintf-js": "^1.1.3"
+  },
   "devDependencies": {
-    "typescript": "~6.0.2",
-    "vite": "^8.1.1",
-    "mocha": "*",
+    "@types/sprintf-js": "^1.1.4",
     "expect.js": "*",
-    "serve": "*"
+    "mocha": "*",
+    "serve": "*",
+    "typescript": "~6.0.2",
+    "vite": "^8.1.1"
   },
   "license": "MIT"
 }
