@@ -12,7 +12,8 @@
   "scripts": {
     "test": "make test",
     "dev": "vite",
-    "build": "tsc && vite build",
+    "build": "npm run build:lib_plurals_parser && tsc && vite build",
+    "build:lib_plurals_parser": "jison ./plurals.jison --debug --module-type js --parser-type lr --outfile generated/lib_plurals_parser.js > generated/lib_plurals_parser.log",
     "preview": "vite preview"
   },
   "keywords": [
@@ -27,6 +28,7 @@
   "devDependencies": {
     "@types/sprintf-js": "^1.1.4",
     "expect.js": "*",
+    "jison": "^0.4.18",
     "mocha": "*",
     "serve": "*",
     "typescript": "~6.0.2",
