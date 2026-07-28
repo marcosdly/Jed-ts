@@ -10,7 +10,7 @@
   "main": "./jed",
   "type": "module",
   "scripts": {
-    "test": "make test",
+    "test": "vitest",
     "dev": "vite",
     "build": "npm run build:lib_plurals_parser && tsc && vite build",
     "build:lib_plurals_parser": "jison ./plurals.jison --debug --module-type js --parser-type lr --outfile generated/lib_plurals_parser.js > generated/lib_plurals_parser.log",
@@ -34,7 +34,8 @@
     "mocha": "*",
     "serve": "*",
     "typescript": "~6.0.2",
-    "vite": "^8.1.1"
+    "vite": "^8.1.1",
+    "vitest": "^4.1.10"
   },
   "license": "MIT"
 }
