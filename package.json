@@ -9,6 +9,9 @@
   },
   "main": "./jed",
   "type": "module",
+  "prettier": {
+    "printWidth": 120
+  },
   "scripts": {
     "test": "vitest",
     "dev": "vite",
