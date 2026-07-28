@@ -57,7 +57,7 @@ class Chain {
     return this;
   }
 
-  public fetch(...arr: string[]): string {
+  public fetch(...arr: (number | number[])[]): string {
     const gettextResult = this._i18n.dcnpgettext(
       this._domain!,
       this._context!,
@@ -69,19 +69,15 @@ class Chain {
   }
 }
 
-export interface JedOptions {
-  locale_data: Record<
-    string,
-    {
-      [key: string]: {
-        domain: string;
-        lang: string;
-        plural_forms: string;
-      };
-    }
-  >;
+export type LocaleDataObject = {
   domain: string;
-  debug: boolean;
+  lang: string;
+} & ({ plural_forms: string } | { "plural-forms": string });
+
+export interface JedOptions {
+  locale_data?: Record<string, Record<string, string[] | LocaleDataObject>>;
+  domain?: string;
+  debug?: boolean;
   missing_key_callback?: (key: string, domain: string) => void;
 }
 
@@ -124,18 +120,21 @@ export default class Jed {
       options ?? ({} as JedOptions),
     ) as JedOptions;
     this.textdomain(this.options?.domain);
-    if (options?.domain && !this.options?.locale_data[this.options!.domain!]) {
+    if (
+      options?.domain &&
+      !this.options?.locale_data?.[this.options!.domain!]
+    ) {
       throw new Error(
         `Text domain set to non-existent domain: \`${options.domain}\``,
       );
     }
   }
 
-  public static sprintf(fmt: string, ...args: string[]): string {
+  public static sprintf(fmt: string, ...args: any[]): string {
     return vsprintf(fmt, args);
   }
 
-  public sprintf(fmt: string, ...args: string[]): string {
+  public sprintf(fmt: string, ...args: any[]): string {
     return vsprintf(fmt, args);
   }
 
@@ -184,9 +183,10 @@ export default class Jed {
     domain: string,
     skey: string,
     pkey: string,
-    val: number /*, category */,
+    val: number,
+    category?: string,
   ): string {
-    return this._dcnpgettext(domain, undefined, skey, pkey, val);
+    return this._dcnpgettext(domain, undefined, skey, pkey, val, category);
   }
 
   public pgettext(context: string, key: string): string {
@@ -200,13 +200,27 @@ export default class Jed {
   public dcpgettext(
     domain: string,
     context: string,
-    key: string /*, category */,
+    key: string,
+    category?: string,
   ) {
-    return this._dcnpgettext(domain, context, key);
+    return this._dcnpgettext(
+      domain,
+      context,
+      key,
+      undefined,
+      undefined,
+      category,
+    );
   }
 
-  public npgettext(context: string, skey: string, pkey: string, val: number) {
-    return this._dcnpgettext(undefined, context, skey, pkey, val);
+  public npgettext(
+    context: string,
+    skey: string,
+    pkey: string,
+    val: number,
+    category?: string,
+  ) {
+    return this._dcnpgettext(undefined, context, skey, pkey, val, category);
   }
 
   public dnpgettext(
@@ -225,8 +239,16 @@ export default class Jed {
     singular_key: string,
     plural_key: string,
     val: number,
+    category?: string,
   ): string {
-    return this._dcnpgettext(domain, context, singular_key, plural_key, val);
+    return this._dcnpgettext(
+      domain,
+      context,
+      singular_key,
+      plural_key,
+      val,
+      category,
+    );
   }
 
   /**
@@ -242,6 +264,7 @@ export default class Jed {
     singular_key?: string,
     plural_key?: string,
     val?: number,
+    _category?: string,
   ): string {
     // Make sure we have a truthy key. Otherwise we might start looking
     // into the empty string key, which is the options for the locale
