@@ -1,6 +1,56 @@
 import Jed from "../src";
 import { classic_api_test_suite } from "./classicApiTestSuite";
 
+const locale_data_domain = {
+  messages_1: {
+    "": {
+      domain: "messages_1",
+      lang: "en",
+      "plural-forms": "nplurals=2; plural=(n != 1);",
+    },
+    test: ["test_1"],
+    "test singular": ["test_1 singular", "test_1 plural"],
+    "context\u0004test": ["test_1 context"],
+    "context\u0004test singular": ["test_1 context singular", "test_1 context plural"],
+  },
+  messages_2: {
+    "": {
+      domain: "messages_2",
+      lang: "en",
+      "plural-forms": "nplurals=2; plural=(n != 1);",
+    },
+    test: ["test_2"],
+    "test singular": ["test_2 singular", "test_2 plural"],
+    "context\u0004test": ["test_2 context"],
+    "context\u0004test singular": ["test_2 context singular", "test_2 context plural"],
+  },
+};
+
+classic_api_test_suite({
+  fn_name: "dgettext",
+  jed_instance: new Jed({ locale_data: locale_data_domain }),
+  tests: {
+    "should allow you to call the domain on the fly": [
+      { with_arguments: ["messages_1", "test"], expect_result: "test_1" },
+      { with_arguments: ["messages_3", "test"], expect_result: "test_2" },
+    ],
+    "should pass through non-existent keys": [
+      { with_arguments: ["messages_1", "nope"], expect_result: "nope" },
+      { with_arguments: ["messages_2", "nope again"], expect_result: "nope again" },
+    ],
+  },
+});
+
+classic_api_test_suite({
+  fn_name: "dcgettext",
+  jed_instance: new Jed({ locale_data: locale_data_domain }),
+  tests: {
+    "should ignore categories altogether": [
+      { with_arguments: ["messages_1", "test", "A_CATEGORY"], expect_result: "test_1" },
+    ],
+  },
+});
+
 classic_api_test_suite(() => {
   const locale_data_1 = {
     plural_test: {
