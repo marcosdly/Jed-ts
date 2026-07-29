@@ -1,17 +1,20 @@
 import { expect, describe, it } from "vitest";
 import Jed from "../src";
+import { ClassificationType } from "typescript";
 
-export type DeclarativeTestArray = Array<{
+export interface DeclarativeTest {
   with_jed_instance?: Jed;
   with_arguments: (string | number)[];
   expect_result: string;
-}>;
+}
+
+type SomeCallback = () => void;
 
 export interface ClassicAPITestSuite {
   fn_name: keyof Jed;
   jed_instance?: Jed;
   tests: {
-    [description: string]: DeclarativeTestArray | (() => void);
+    [description: string]: Array<DeclarativeTest | SomeCallback> | SomeCallback;
   };
 }
 
@@ -33,18 +36,37 @@ export function classic_api_test_suite(object_or_callback: ClassicAPITestSuite |
 
     for (const [description, test_list_or_callback] of Object.entries(tests)) {
       if (typeof test_list_or_callback === "function") {
+        // test data is a literal function for an arbitrary procedure
         it(description, test_list_or_callback);
         continue;
       }
 
+      const meta_callbacks: Record<string, Function> = {};
+      const test_data: DeclarativeTest[] = [];
+      for (const test_data_or_callback of test_list_or_callback) {
+        if (typeof test_data_or_callback === "function") {
+          if (["beforeAll", "afterAll", "beforeEach", "afterEach"].includes(test_data_or_callback.name)) {
+            meta_callbacks[test_data_or_callback.name] = test_data_or_callback;
+          } else {
+            throw new Error(`Unknown callback named '${test_data_or_callback.name} amongst defined tests`);
+          }
+        } else {
+          test_data.push(test_data_or_callback);
+        }
+      }
+
       it(description, () => {
-        for (const { with_arguments, expect_result, with_jed_instance } of test_list_or_callback) {
+        meta_callbacks?.beforeAll?.();
+        for (const { with_arguments, expect_result, with_jed_instance } of test_data) {
           const _jed = with_jed_instance !== undefined ? test_jed_instance(with_jed_instance) : jed_instance;
           const fn = _jed![fn_name] as Function;
+          meta_callbacks?.beforeEach?.();
           const result = fn(...with_arguments);
           expect(result).toBeDefined();
           expect(result).toEqual(expect_result);
+          meta_callbacks?.afterEach?.();
         }
+        meta_callbacks?.afterAll?.();
       });
     }
   });
