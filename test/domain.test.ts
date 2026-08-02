@@ -61,7 +61,7 @@ classic_api_test_suite({
       { with_jed_instance: i18n_2, with_arguments: [], expect_result: "messages_2" },
     ],
     "should use `messages` as the default domain if none given": [
-      { with_jed_instance: i18n_3, with_arguments: [], expect_result: "messges" },
+      { with_jed_instance: i18n_3, with_arguments: [], expect_result: "messages" },
     ],
     "should allow on the fly domain switching": [
       function beforeAll() {
