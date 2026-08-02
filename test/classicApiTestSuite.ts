@@ -1,6 +1,6 @@
 import { expect, describe, it } from "vitest";
 import Jed from "../src";
-import { ClassificationType } from "typescript";
+import { assert_nullish } from "../src/util";
 
 export interface DeclarativeTest {
   with_jed_instance?: Jed;
@@ -16,10 +16,6 @@ export interface ClassicAPITestSuite {
   tests: {
     [description: string]: Array<DeclarativeTest | (() => DeclarativeTest) | SomeCallback> | SomeCallback;
   };
-}
-
-function assert_nullish(value: any, cause?: any): void | never {
-  if (value === undefined || value === null) throw new Error(`Value is nullish; ${cause}`, { cause });
 }
 
 export function classic_api_test_suite(object_or_callback: ClassicAPITestSuite | (() => ClassicAPITestSuite)) {

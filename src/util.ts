@@ -33,3 +33,7 @@ export function mergeDeep<T extends Object>(target: T, ...sources: T[]) {
 
   return mergeDeep(target, ...sources);
 }
+
+export function assert_nullish(value: any, cause?: any): void | never {
+  if (value === undefined || value === null) throw new Error(`Value is nullish; ${cause}`, { cause });
+}
