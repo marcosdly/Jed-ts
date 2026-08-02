@@ -58,13 +58,7 @@ class Chain {
   }
 
   public fetch(...arr: (number | number[])[]): string {
-    const gettextResult = this._i18n.dcnpgettext(
-      this._domain!,
-      this._context!,
-      this._key!,
-      this._pkey!,
-      this._val!,
-    );
+    const gettextResult = this._i18n.dcnpgettext(this._domain!, this._context!, this._key!, this._pkey!, this._val!);
     return arr.length ? sprintf(gettextResult, ...arr) : gettextResult;
   }
 }
@@ -114,19 +108,10 @@ export default class Jed {
 
   public readonly options?: JedOptions;
   public constructor(options?: JedOptions) {
-    this.options = mergeDeep<JedOptions>(
-      {} as JedOptions,
-      this.defaults,
-      options ?? ({} as JedOptions),
-    ) as JedOptions;
+    this.options = mergeDeep<JedOptions>({} as JedOptions, this.defaults, options ?? ({} as JedOptions)) as JedOptions;
     this.textdomain(this.options?.domain);
-    if (
-      options?.domain &&
-      !this.options?.locale_data?.[this.options!.domain!]
-    ) {
-      throw new Error(
-        `Text domain set to non-existent domain: \`${options.domain}\``,
-      );
+    if (options?.domain && !this.options?.locale_data?.[this.options!.domain!]) {
+      throw new Error(`Text domain set to non-existent domain: \`${options.domain}\``);
     }
   }
 
@@ -170,22 +155,11 @@ export default class Jed {
     return this._dcnpgettext(undefined, undefined, skey, pkey, val);
   }
 
-  public dngettext(
-    domain: string,
-    skey: string,
-    pkey: string,
-    val: number,
-  ): string {
+  public dngettext(domain: string, skey: string, pkey: string, val: number): string {
     return this._dcnpgettext(domain, undefined, skey, pkey, val);
   }
 
-  public dcngettext(
-    domain: string,
-    skey: string,
-    pkey: string,
-    val: number,
-    category?: string,
-  ): string {
+  public dcngettext(domain: string, skey: string, pkey: string, val: number, category?: string): string {
     return this._dcnpgettext(domain, undefined, skey, pkey, val, category);
   }
 
@@ -197,39 +171,15 @@ export default class Jed {
     return this._dcnpgettext(domain, context, key);
   }
 
-  public dcpgettext(
-    domain: string,
-    context: string,
-    key: string,
-    category?: string,
-  ) {
-    return this._dcnpgettext(
-      domain,
-      context,
-      key,
-      undefined,
-      undefined,
-      category,
-    );
+  public dcpgettext(domain: string, context: string, key: string, category?: string) {
+    return this._dcnpgettext(domain, context, key, undefined, undefined, category);
   }
 
-  public npgettext(
-    context: string,
-    skey: string,
-    pkey: string,
-    val: number,
-    category?: string,
-  ) {
+  public npgettext(context: string, skey: string, pkey: string, val: number, category?: string) {
     return this._dcnpgettext(undefined, context, skey, pkey, val, category);
   }
 
-  public dnpgettext(
-    domain: string,
-    context: string,
-    skey: string,
-    pkey: string,
-    val: number,
-  ): string {
+  public dnpgettext(domain: string, context: string, skey: string, pkey: string, val: number): string {
     return this._dcnpgettext(domain, context, skey, pkey, val);
   }
 
@@ -241,14 +191,7 @@ export default class Jed {
     val: number,
     category?: string,
   ): string {
-    return this._dcnpgettext(
-      domain,
-      context,
-      singular_key,
-      plural_key,
-      val,
-      category,
-    );
+    return this._dcnpgettext(domain, context, singular_key, plural_key, val, category);
   }
 
   /**
@@ -283,14 +226,7 @@ export default class Jed {
       // There's likely something wrong, but we'll return the correct key for english
       // We do this by instantiating a brand new Jed instance with the default set
       // for everything that could be broken.
-      return this._dcnpgettext.call(
-        new Jed(),
-        undefined,
-        undefined,
-        singular_key,
-        plural_key,
-        val,
-      );
+      return this._dcnpgettext.call(new Jed(), undefined, undefined, singular_key, plural_key, val);
     }
 
     const locale_data = this.options.locale_data;
@@ -298,18 +234,14 @@ export default class Jed {
     // No translation data provided
     if (!locale_data) throw new Error("No locale data provided.");
 
-    if (!locale_data[domain])
-      throw new Error(`Domain \`${domain}\` was not found.`);
+    if (!locale_data[domain]) throw new Error(`Domain \`${domain}\` was not found.`);
 
-    if (!locale_data[domain][""])
-      throw new Error("No locale meta information provided.");
+    if (!locale_data[domain][""]) throw new Error("No locale meta information provided.");
 
     const dict = locale_data[domain][""];
     const defaultConf = (locale_data || this.defaults.locale_data).messages[""];
     const pluralForms = dict.plural_forms || defaultConf.plural_forms;
-    const key: string = context
-      ? context + this.context_delimiter + singular_key
-      : singular_key;
+    const key: string = context ? context + this.context_delimiter + singular_key : singular_key;
 
     let val_idx: number = 0;
     if (val !== undefined) {
@@ -317,8 +249,7 @@ export default class Jed {
 
       // Handle invalid numbers, but try casting strings for good measure
       if (typeof val !== "number") val = parseInt(val, 10);
-      if (isNaN(val))
-        throw new Error("The number that was passed in is not a number.");
+      if (isNaN(val)) throw new Error("The number that was passed in is not a number.");
 
       val_idx = getPluralFormFunc(pluralForms)(val) as number;
     }

@@ -20,11 +20,7 @@ function evalParse(plural_forms: string) {
     `;
     return new Function("n", code);
   } else {
-    throw new Error(
-      "Syntax error in language file. Plural-Forms header is invalid [" +
-        plural_forms +
-        "]",
-    );
+    throw new Error("Syntax error in language file. Plural-Forms header is invalid [" + plural_forms + "]");
   }
 }
 

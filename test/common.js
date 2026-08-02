@@ -1,2 +1,2 @@
-expect = require('expect.js');
-Jed = require('../jed');
+expect = require("expect.js");
+Jed = require("../jed");

@@ -46,8 +46,7 @@ export function compile(plural: string) {
   };
 }
 
-type InterpreterResult =
-  boolean | string | number | ((n: number) => InterpreterResult);
+type InterpreterResult = boolean | string | number | ((n: number) => InterpreterResult);
 
 interface AST {
   type: string;
@@ -62,9 +61,7 @@ interface AST {
 function __interpret__(ast: AST, n: number): InterpreterResult {
   const fn = interpreter(ast);
   if (isCallable(fn)) return fn(n);
-  throw new Error(
-    `Interpreted value ${ast} returns a non callable value '${fn}'`,
-  );
+  throw new Error(`Interpreted value ${ast} returns a non callable value '${fn}'`);
 }
 
 function interpreter(ast: AST): InterpreterResult {
@@ -113,16 +110,13 @@ function interpreter(ast: AST): InterpreterResult {
 
 function extractPluralExpr(plural_expr: string) {
   // trim first
-  let p = plural_expr
-    .replace(regexps.TRIM_BEG, "")
-    .replace(regexps.TRIM_END, "");
+  let p = plural_expr.replace(regexps.TRIM_BEG, "").replace(regexps.TRIM_END, "");
 
   if (!regexps.HAS_SEMICOLON.test(p)) p = p.concat(";");
 
   // Find the nplurals number
   const nplurals: string | undefined = p.match(regexps.NPLURALS)?.[1];
-  if (nplurals === undefined)
-    throw new Error("nplurals not found in plural_forms string: " + p);
+  if (nplurals === undefined) throw new Error("nplurals not found in plural_forms string: " + p);
 
   p = p.replace(regexps.NPLURALS, ""); // remove that data to get to the formula
 

@@ -14,10 +14,7 @@ const locale_data_w_context = {
     test2: ["test_2"],
     "zero length translation": [""],
     "context\u0004test2": ["test_2context"],
-    "context\u0004context plural %1$d": [
-      "context_plural_1 singular %1$d",
-      "context_plural_1 plural %1$d",
-    ],
+    "context\u0004context plural %1$d": ["context_plural_1 singular %1$d", "context_plural_1 plural %1$d"],
   },
 };
 

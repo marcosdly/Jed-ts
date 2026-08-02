@@ -8,11 +8,7 @@ function pluginPreserveGeneratedModule(name: string): PluginOption {
     transform(rawCodeString, filePath) {
       if (filePath.endsWith(`${name}.js`)) {
         return {
-          code: rawCodeString.concat(
-            END_STATEMENT,
-            `window.${name} = ${name}`,
-            END_STATEMENT,
-          ),
+          code: rawCodeString.concat(END_STATEMENT, `(globalThis ?? window ?? {}).${name} = ${name}`, END_STATEMENT),
         };
       }
     },

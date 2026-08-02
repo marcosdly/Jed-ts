@@ -8,12 +8,7 @@
  * @returns {boolean}
  */
 export function isObject(item: any): item is Object {
-  return (
-    typeof item === "object" &&
-    item !== null &&
-    item !== undefined &&
-    !Array.isArray(item)
-  );
+  return typeof item === "object" && item !== null && item !== undefined && !Array.isArray(item);
 }
 
 /**
