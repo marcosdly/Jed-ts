@@ -26,6 +26,11 @@ const locale_data_domain = {
   },
 };
 
+function range<T>(length: number, func: (index: number) => T): Array<T> {
+  if (length === 0) return [];
+  return Array(length).fill(null).map(func);
+}
+
 classic_api_test_suite({
   fn_name: "dgettext",
   jed_instance: new Jed({ locale_data: locale_data_domain }),
@@ -122,7 +127,7 @@ classic_api_test_suite(() => {
           expect_result: "Not translated plural",
         },
       ],
-      "should be able to parse complex pluralization rules": Array(40).map((_, i) => {
+      "should be able to parse complex pluralization rules": range(40, (i) => {
         let plural: number;
         if (i === 1) plural = 0;
         else if (i % 10 === 2) plural = 1;

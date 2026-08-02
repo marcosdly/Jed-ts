@@ -14,8 +14,12 @@ export interface ClassicAPITestSuite {
   fn_name: keyof Jed;
   jed_instance?: Jed;
   tests: {
-    [description: string]: Array<DeclarativeTest | SomeCallback> | SomeCallback;
+    [description: string]: Array<DeclarativeTest | (() => DeclarativeTest) | SomeCallback> | SomeCallback;
   };
+}
+
+function assert_nullish(value: any, cause?: any): void | never {
+  if (value === undefined || value === null) throw new Error(`Value is nullish; ${cause}`, { cause });
 }
 
 export function classic_api_test_suite(object_or_callback: ClassicAPITestSuite | (() => ClassicAPITestSuite)) {
@@ -35,6 +39,7 @@ export function classic_api_test_suite(object_or_callback: ClassicAPITestSuite |
     it(`should have a ${fn_name} function`, () => void test_jed_instance(jed_instance));
 
     for (const [description, test_list_or_callback] of Object.entries(tests)) {
+      assert_nullish(test_list_or_callback, `Test suite '${description}' returns is nullish`);
       if (typeof test_list_or_callback === "function") {
         // test data is a literal function for an arbitrary procedure
         it(description, test_list_or_callback);
@@ -43,13 +48,18 @@ export function classic_api_test_suite(object_or_callback: ClassicAPITestSuite |
 
       const meta_callbacks: Record<string, Function> = {};
       const test_data: DeclarativeTest[] = [];
-      for (const test_data_or_callback of test_list_or_callback) {
+      for (let i = 0; i < test_list_or_callback.length; ++i) {
+        const test_data_or_callback = test_list_or_callback[i];
+        assert_nullish(test_data_or_callback, `Test ${i} of suite '${description}' returns nullish`);
         if (typeof test_data_or_callback === "function") {
           if (["beforeAll", "afterAll", "beforeEach", "afterEach"].includes(test_data_or_callback.name)) {
             meta_callbacks[test_data_or_callback.name] = test_data_or_callback;
-          } else {
-            throw new Error(`Unknown callback named '${test_data_or_callback.name} amongst defined tests`);
+            continue;
           }
+          const data = test_data_or_callback() as DeclarativeTest;
+          assert_nullish(data, "Getter function returns nullish");
+          test_data.push(data);
+          // throw new Error(`Unknown callback named '${test_data_or_callback.name} amongst defined tests`);
         } else {
           test_data.push(test_data_or_callback);
         }
