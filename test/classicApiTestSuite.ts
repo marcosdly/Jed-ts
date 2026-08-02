@@ -58,10 +58,10 @@ export function classic_api_test_suite(object_or_callback: ClassicAPITestSuite |
       it(description, () => {
         meta_callbacks?.beforeAll?.();
         for (const { with_arguments, expect_result, with_jed_instance } of test_data) {
-          const _jed = with_jed_instance !== undefined ? test_jed_instance(with_jed_instance) : jed_instance;
-          const fn = _jed![fn_name] as Function;
+          const jed_this = with_jed_instance !== undefined ? test_jed_instance(with_jed_instance) : jed_instance;
+          const fn = jed_this![fn_name] as Function;
           meta_callbacks?.beforeEach?.();
-          const result = fn(...with_arguments);
+          const result = fn.call(jed_this, ...with_arguments);
           expect(result).toBeDefined();
           expect(result).toEqual(expect_result);
           meta_callbacks?.afterEach?.();
