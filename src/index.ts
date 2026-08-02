@@ -23,7 +23,7 @@ in order to offer easy upgrades -- jsgettext.berlios.de
 */
 
 import { sprintf, vsprintf } from "sprintf-js";
-import { mergeDeep } from "./util";
+import { assert_nullish, isObject, mergeDeep } from "./util";
 import { getPluralFormFunc } from "./PluralFormParser";
 
 /**
@@ -66,7 +66,13 @@ class Chain {
 export type LocaleDataObject = {
   domain: string;
   lang: string;
-} & ({ plural_forms: string } | { "plural-forms": string });
+  plural_forms?: string;
+  "plural-forms"?: string;
+};
+
+function isLocaleDataObject(value: any): value is LocaleDataObject {
+  return isObject(value) && typeof value.domain === "string" && typeof value.lang === "string";
+}
 
 export interface JedOptions {
   locale_data?: Record<string, Record<string, string[] | LocaleDataObject>>;
@@ -238,40 +244,67 @@ export default class Jed {
 
     if (!locale_data[domain][""]) throw new Error("No locale meta information provided.");
 
-    const dict = locale_data[domain][""];
-    const defaultConf = (locale_data || this.defaults.locale_data).messages[""];
-    const pluralForms = dict.plural_forms || defaultConf.plural_forms;
-    const key: string = context ? context + this.context_delimiter + singular_key : singular_key;
+    type PluralTuple = [string, string];
+    const definedDict: string[] | LocaleDataObject = locale_data[domain][""];
+    const defaultDict: string[] | LocaleDataObject = (locale_data || this.defaults.locale_data).messages[""];
 
-    let val_idx: number = 0;
-    if (val !== undefined) {
+    let plural_tuple: PluralTuple | undefined;
+    if (Array.isArray(definedDict)) plural_tuple = definedDict as PluralTuple;
+    else if (Array.isArray(defaultDict)) plural_tuple = defaultDict as PluralTuple;
+
+    // form like "nplurals=2; plural=(n != 1);"
+    let plural_obj_literal: string | undefined;
+    if (isLocaleDataObject(definedDict))
+      plural_obj_literal = definedDict["plural_forms"] ?? definedDict["plural-forms"];
+    else if (isLocaleDataObject(defaultDict))
+      plural_obj_literal = defaultDict["plural_forms"] ?? defaultDict["plural-forms"];
+
+    type DictKey = keyof typeof definedDict | keyof typeof defaultDict;
+    const key: DictKey = context
+      ? (`${context}${this.context_delimiter}${singular_key}` as DictKey)
+      : (singular_key as DictKey);
+
+    let val_idx: number;
+    if (typeof val === "number") {
+      val_idx = val;
+    } else if (val === undefined) {
+      val_idx = 0;
+    } else {
       // Value has been passed in; use plural-forms calculations.
+      assert_nullish(plural_obj_literal, "Missing plural-forms string since `n` hasnt been explcitly provided");
 
       // Handle invalid numbers, but try casting strings for good measure
       if (typeof val !== "number") val = parseInt(val, 10);
       if (isNaN(val)) throw new Error("The number that was passed in is not a number.");
 
-      val_idx = getPluralFormFunc(pluralForms)(val) as number;
+      val_idx = getPluralFormFunc(plural_obj_literal)(val) as number;
+      if (typeof val_idx !== "number") throw new Error("BUG: plural form index calculation didnt return a number");
+      if (val_idx < 0) throw new Error("BUG: plural form index is less than zero");
     }
 
     // If there is no match, then revert back to
     // english style singular/plural with the keys passed in.
-    if (val_idx > (dict?.[key as keyof typeof dict]?.length ?? Infinity)) {
+    if (!plural_tuple) plural_tuple = definedDict[key] as PluralTuple | undefined;
+    if (!plural_tuple || val_idx > plural_tuple.length) {
+      // if (val_idx > (definedDict?.[key as keyof typeof definedDict]?.length ?? Infinity)) {
       this.options.missing_key_callback?.(key, domain || "");
 
-      const res_tuple = [singular_key, plural_key];
+      plural_tuple = [singular_key, plural_key];
 
       // collect untranslated strings
-      if (this.options.debug) {
-        const index = getPluralFormFunc(pluralForms)(val!) as number;
-        console.log(res_tuple[index]);
+      if (this.options.debug && plural_obj_literal && typeof val === "number") {
+        const index = getPluralFormFunc(plural_obj_literal)(val) as number;
+        console.log(plural_tuple[index]);
       }
 
+      // FIX val can be undefined but I don't understand it so let it explode until I debug step-by-step
       const index = getPluralFormFunc()(val!) as number;
-      return res_tuple[index];
+      return plural_tuple[index];
+    } else {
+      plural_tuple = definedDict[key];
     }
 
-    const res_value = dict?.[key as keyof typeof dict]?.[val_idx];
+    const res_value = definedDict?.[key as keyof typeof definedDict]?.[val_idx];
 
     // This includes empty strings on purpose
     if (!res_value) {
