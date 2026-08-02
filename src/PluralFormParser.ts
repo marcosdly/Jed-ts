@@ -35,20 +35,19 @@ function __imply__<T>(value: T): T | 0 | 1 {
   return value === true ? 1 : value || 0;
 }
 
-export function parse(plural: string) {
+function __ast__(plural: string): AST {
   return lib_plurals_parser.parse(extractPluralExpr(plural));
 }
 
 export function compile(plural: string) {
   return function (n: number) {
-    const ast = parse(plural);
-    return __imply__(__interpret__(ast, n));
+    return __imply__(__interpret__(__ast__(plural), n));
   };
 }
 
 type InterpreterResult = boolean | string | number | ((n: number) => InterpreterResult);
 
-interface AST {
+export interface AST {
   type: string;
   val: number;
   expr: AST;
