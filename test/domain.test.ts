@@ -26,7 +26,7 @@ const locale_data = {
   },
 };
 
-const i18n_1 = new Jed({ domain: "messages_2", locale_data });
+const i18n_1 = new Jed({ domain: "messages_1", locale_data });
 
 const i18n_2 = new Jed({ domain: "messages_2", locale_data });
 
