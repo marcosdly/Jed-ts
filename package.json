@@ -19,6 +19,9 @@
     "build:lib_plurals_parser": "jison ./plurals.jison --debug --module-type js --parser-type lr --outfile generated/lib_plurals_parser.js > generated/lib_plurals_parser.log",
     "preview": "vite preview"
   },
+  "workspaces": [
+    "vendor/*"
+  ],
   "keywords": [
     "i18n",
     "Jed",
@@ -27,7 +30,7 @@
   ],
   "dependencies": {
     "is-callable": "^1.2.7",
-    "sprintf-js": "^1.1.3"
+    "sprintf-js": "*"
   },
   "devDependencies": {
     "@types/is-callable": "^1.1.2",
