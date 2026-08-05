@@ -40,8 +40,8 @@ it("should take multiple types of arrays as input", function () {
     expect(_static.sprintf(key, "[one]", "[two]")).toEqual(value);
     expect(_instance.sprintf(key, "[one]", "[two]")).toEqual(value);
     // test using predefined array
-    expect(_static.sprintf(key, args)).toEqual(value);
-    expect(_instance.sprintf(key, args)).toEqual(value);
+    expect(_static.sprintf(key, ...args)).toEqual(value);
+    expect(_instance.sprintf(key, ...args)).toEqual(value);
   }
 });
 
