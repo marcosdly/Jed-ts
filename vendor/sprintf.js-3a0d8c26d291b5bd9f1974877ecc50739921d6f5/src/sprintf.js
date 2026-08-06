@@ -54,6 +54,8 @@
                     arg = argv[cursor++]
                 }
 
+                if (arg === undefined) arg = ""
+
                 if (re.not_type.test(ph.type) && re.not_primitive.test(ph.type) && arg instanceof Function) {
                     arg = arg()
                 }
