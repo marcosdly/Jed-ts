@@ -23,7 +23,7 @@ in order to offer easy upgrades -- jsgettext.berlios.de
 */
 
 import { sprintf, vsprintf } from "sprintf-js";
-import { assert_nullish, isObject, mergeDeep } from "./util";
+import { assert_nullish, isNullish, isObject, mergeDeep } from "./util";
 import { getPluralFormFunc } from "./PluralFormParser";
 
 /**
@@ -267,7 +267,7 @@ export default class Jed {
     let val_idx: number;
     if (typeof val === "number") {
       val_idx = val;
-    } else if (val === undefined) {
+    } else if (isNullish(val)) {
       val_idx = 0;
     } else {
       // Value has been passed in; use plural-forms calculations.

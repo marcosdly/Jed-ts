@@ -37,3 +37,7 @@ export function mergeDeep<T extends Object>(target: T, ...sources: T[]) {
 export function assert_nullish(value: any, cause?: any): void | never {
   if (value === undefined || value === null) throw new Error(`Value is nullish; ${cause}`, { cause });
 }
+
+export function isNullish(value: any): value is undefined | null {
+  return value === undefined || value === null;
+}
