@@ -57,13 +57,15 @@ export interface AST {
   right: AST;
 }
 
-function __interpret__(ast: AST, n: number): InterpreterResult {
+function __interpret__(ast: AST | undefined, n: number): InterpreterResult | undefined {
   const fn = interpreter(ast);
+  if (fn === undefined) return undefined;
   if (isCallable(fn)) return fn(n);
   throw new Error(`Interpreted value ${ast} returns a non callable value '${fn}'`);
 }
 
-function interpreter(ast: AST): InterpreterResult {
+function interpreter(ast: AST | undefined): InterpreterResult | undefined {
+  if (ast === undefined) return undefined;
   return (n: number): InterpreterResult => {
     const t = ast.type;
 
@@ -72,12 +74,12 @@ function interpreter(ast: AST): InterpreterResult {
 
     const expr = __interpret__(ast.expr, n);
 
-    if (t === "GROUP") return expr;
+    if (t === "GROUP") return expr!;
 
     const falsey = __interpret__(ast.falsey, n);
     const truthy = __interpret__(ast.truthy, n);
 
-    if (t === "TERNARY") return expr ? truthy : falsey;
+    if (t === "TERNARY") return expr! ? truthy! : falsey!;
 
     const left = __interpret__(ast.left, n) as number;
     const right = __interpret__(ast.right, n) as number;
